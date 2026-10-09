@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import com.example.franciscabenitez_tm.ui.theme.FranciscaBenitez_TMTheme
 
@@ -32,6 +33,15 @@ class MainActivity : ComponentActivity() {
 
                 var terminos by remember { mutableStateOf(false) }
 
+                fun verificarSiNombreTieneError(): Boolean {
+                    if (nombre == ""){
+                        return true
+                    }
+                    else {
+                        return false
+                    }
+                }
+
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -41,8 +51,11 @@ class MainActivity : ComponentActivity() {
                         value = nombre,
                         onValueChange = {nombre = it},
                         label = {Text("Ingresa nombre")},
-                        isError = true,
-                        supportingText = {Text("Ingrese un nombre valido", color = Red)}
+                        isError = verificarSiNombreTieneError(),
+                        supportingText = {
+                            if(verificarSiNombreTieneError()){
+                                Text("Debes ingresar el nombre", color = Color.Blue)}
+                        }
                     )
 
                     Checkbox(
@@ -50,7 +63,9 @@ class MainActivity : ComponentActivity() {
                         onCheckedChange = {terminos = it}
                     )
 
-                    Button(onClick = {activarModal()}) {
+                    Button(
+                        onClick = {activarModal()},
+                        enabled = false) {
                         Text(text = "Enviar")
                     }
                 }
