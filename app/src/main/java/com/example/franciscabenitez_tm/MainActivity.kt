@@ -6,10 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -22,65 +25,46 @@ import androidx.compose.ui.graphics.Color.Companion.Red
 import com.example.franciscabenitez_tm.ui.theme.FranciscaBenitez_TMTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
+
+
+
         setContent {
-            FranciscaBenitez_TMTheme {
-                var nombre by remember { mutableStateOf("") }
 
-                var modal by remember { mutableStateOf(false) }
-                fun activarModal() {modal = true}
+            MaterialTheme {
 
-                var terminos by remember { mutableStateOf(false) }
+                var pantalla by remember { mutableStateOf("inicio") }
 
-                fun verificarSiNombreTieneError(): Boolean {
-                    if (nombre == ""){
-                        return true
+
+
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+                    when (pantalla) {
+
+                        "inicio" -> Inicio(
+
+                            modifier = Modifier.padding(innerPadding),
+
+                            login = { pantalla = "login" },
+
+                            singup = { pantalla = "singup" }
+
+                        )
+
+
+
+
                     }
-                    else {
-                        return false
-                    }
+
                 }
 
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    OutlinedTextField(
-                        value = nombre,
-                        onValueChange = {nombre = it},
-                        label = {Text("Ingresa nombre")},
-                        isError = verificarSiNombreTieneError(),
-                        supportingText = {
-                            if(verificarSiNombreTieneError()){
-                                Text("Debes ingresar el nombre", color = Color.Blue)}
-                        }
-                    )
-
-                    Checkbox(
-                        checked = terminos,
-                        onCheckedChange = {terminos = it}
-                    )
-
-                    Button(
-                        onClick = {activarModal()},
-                        enabled = false) {
-                        Text(text = "Enviar")
-                    }
-                }
-
-                if(modal) {
-                    AlertDialog(
-                        onDismissRequest = { },
-                        title = { Text("Confirmación") },
-                        text = { Text("Formulario enviado correctamente") },
-                        confirmButton = {
-                            Button(onClick = { }) { Text("OK") }
-                        }
-                    )
-                }
             }
+
         }
+
     }
+
 }
