@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -25,16 +26,17 @@ class MainActivity : ComponentActivity() {
                     when (pantalla) {
                         "inicio" -> Inicio(
                             modifier = Modifier.padding(innerPadding),
-                            login = {
-                                // Por ahora no hace nada hasta que crees la vista de login
-                                pantalla = "login"
-                            },
-                            singup = {
-                                pantalla = "singup"
-                            }
+                            login = { pantalla = "login" },
+                            singup = { pantalla = "singup" }
                         )
-                        else -> {
-                        }
+                        "singup" -> SingUp(
+                            modifier = Modifier.padding(innerPadding),
+                            onCrearCuenta = { pantalla = "inicio" }
+                        )
+                        "login" -> LogIn(
+                            modifier = Modifier.padding(innerPadding),
+                            onContinuar = { pantalla = "inicio" }
+                        )
                     }
                 }
             }

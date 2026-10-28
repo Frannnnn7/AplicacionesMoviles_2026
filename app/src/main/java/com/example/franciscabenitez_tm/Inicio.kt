@@ -33,8 +33,7 @@ import androidx.compose.ui.unit.dp
 fun Inicio(
     modifier: Modifier = Modifier,
     login: () -> Unit,
-    singup: () -> Unit,
-    weight: Modifier.(Float) -> Modifier
+    singup: () -> Unit
 ) {
     Box(
         modifier = modifier.fillMaxSize()
@@ -57,25 +56,30 @@ fun Inicio(
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.8f), // Ajustado levemente para balancear con la mitad inferior
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .padding(24.dp)
         ) {
-            Spacer(modifier = Modifier.weight(0.5f))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.8f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.weight(0.5f))
 
-            Text(
-                text = "FUMIGAPP",
-                color = Color(0xFF00E676), // Verde brillante
-                style = MaterialTheme.typography.displayLarge.copy(
-                    fontFamily = FontFamily.SansSerif, // Tipografía estilizada
-                    fontWeight = FontWeight.ExtraBold,
-                    fontStyle = FontStyle.Italic,      // Inclinación distintiva de marca
-                    letterSpacing = TextUnit(4f, TextUnitType.Sp) // Espaciado entre letras para mayor presencia
+                Text(
+                    text = "FUMIGAPP",
+                    color = Color(0xFF00E676),
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontStyle = FontStyle.Italic,
+                        letterSpacing = TextUnit(4f, TextUnitType.Sp)
+                    )
                 )
-            )
 
-            Spacer(modifier = Modifier.weight(0.5f))
-        }
+                Spacer(modifier = Modifier.weight(0.5f))
+            }
 
             Column(
                 modifier = Modifier
@@ -100,7 +104,6 @@ fun Inicio(
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-
                     Button(
                         onClick = singup,
                         modifier = Modifier
@@ -148,3 +151,4 @@ fun Inicio(
             }
         }
     }
+}
