@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -31,12 +37,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextAlign
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingUp(
     modifier: Modifier = Modifier,
-    onCrearCuenta: () -> Unit
+    onCrearCuenta: (String) -> Unit
 ) {
+    var tipoCuenta by remember { mutableStateOf("Cliente") }
+    var menuExpandido by remember { mutableStateOf(false) }
+
     var nombre by remember { mutableStateOf("") }
     var usuario by remember { mutableStateOf("") }
     var nacimiento by remember { mutableStateOf("") }
@@ -44,6 +55,8 @@ fun SingUp(
     var telefono by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
+
+    val opcionesTipoCuenta = listOf("Cliente", "Prestador de servicio")
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -72,10 +85,42 @@ fun SingUp(
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF2E7D32),
+                textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            ExposedDropdownMenuBox(
+                expanded = menuExpandido,
+                onExpandedChange = { menuExpandido = !menuExpandido },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = tipoCuenta,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Tipo de cuenta") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpandido) },
+                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = menuExpandido,
+                    onDismissRequest = { menuExpandido = false }
+                ) {
+                    opcionesTipoCuenta.forEach { opcion ->
+                        DropdownMenuItem(
+                            text = { Text(opcion) },
+                            onClick = {
+                                tipoCuenta = opcion
+                                menuExpandido = false
+                            }
+                        )
+                    }
+                }
+            }
 
             OutlinedTextField(
                 value = nombre,
@@ -88,7 +133,7 @@ fun SingUp(
             OutlinedTextField(
                 value = usuario,
                 onValueChange = { usuario = it },
-                label = { Text("Nombre de usuario") },
+                label = { Text("Usuario") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -128,20 +173,26 @@ fun SingUp(
                 singleLine = true
             )
 
+            val hayErrorContrasena = confirmarContrasena.isNotEmpty() && contrasena != confirmarContrasena
+
             OutlinedTextField(
                 value = confirmarContrasena,
                 onValueChange = { confirmarContrasena = it },
                 label = { Text("Confirmar contraseña") },
+                isError = hayErrorContrasena,
+                supportingText = {
+                    if (hayErrorContrasena) {
+                        Text("Las contraseñas no coinciden", color = MaterialTheme.colorScheme.error)
+                    }
+                },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Button(
-                onClick = onCrearCuenta,
+                onClick = { onCrearCuenta(tipoCuenta) },
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(54.dp),

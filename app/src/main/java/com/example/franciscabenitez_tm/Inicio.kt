@@ -65,11 +65,11 @@ fun Inicio(
                     .weight(0.8f),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.weight(0.5f))
+                Spacer(modifier = Modifier.weight(2f))
 
                 Text(
                     text = "FUMIGAPP",
-                    color = Color(0xFF00E676),
+                    color = Color.White,
                     style = MaterialTheme.typography.displayLarge.copy(
                         fontFamily = FontFamily.SansSerif,
                         fontWeight = FontWeight.ExtraBold,

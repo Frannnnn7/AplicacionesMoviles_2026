@@ -4,15 +4,18 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -29,17 +32,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun LogIn(
     modifier: Modifier = Modifier,
-    onContinuar: () -> Unit
+    onContinuar: (String) -> Unit,
 ) {
+    var tipoCuenta by remember { mutableStateOf("Cliente") } // "Cliente" o "Prestador"
     var usuario by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
 
     Box(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource(id = R.drawable.icono),
@@ -52,20 +58,46 @@ fun LogIn(
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
             Text(
                 text = "Iniciar Sesión",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF2E7D32),
+                textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Ingresar como:",
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    selected = tipoCuenta == "Cliente",
+                    onClick = { tipoCuenta = "Cliente" },
+                    label = { Text("Cliente") },
+                    modifier = Modifier.weight(1f)
+                )
+
+                FilterChip(
+                    selected = tipoCuenta == "Prestador",
+                    onClick = { tipoCuenta = "Prestador" },
+                    label = { Text("Prestador de servicio") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
             OutlinedTextField(
                 value = usuario,
@@ -74,8 +106,6 @@ fun LogIn(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = contrasena,
@@ -87,10 +117,8 @@ fun LogIn(
                 singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
-
             Button(
-                onClick = onContinuar,
+                onClick = { onContinuar(tipoCuenta) },
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(54.dp),
