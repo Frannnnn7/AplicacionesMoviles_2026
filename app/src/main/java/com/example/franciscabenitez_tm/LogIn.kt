@@ -37,11 +37,13 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun LogIn(
     modifier: Modifier = Modifier,
-    onContinuar: (String) -> Unit,
+    onContinuar: (UsuarioState) -> Unit,
 ) {
     var tipoCuenta by remember { mutableStateOf("Cliente") } // "Cliente" o "Prestador"
     var usuario by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
+
+    val esFormularioValido = usuario.isNotBlank() && contrasena.isNotBlank()
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -118,7 +120,13 @@ fun LogIn(
             )
 
             Button(
-                onClick = { onContinuar(tipoCuenta) },
+                onClick = { onContinuar(
+                    UsuarioState(
+                        usuario = usuario,
+                        tipoCuenta = tipoCuenta
+                    )
+                ) },
+                enabled = esFormularioValido,
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(54.dp),

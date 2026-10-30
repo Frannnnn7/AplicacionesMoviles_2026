@@ -17,10 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,9 +29,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.Dialog
+import com.example.franciscabenitez_tm.GoogleMaps
 
 data class ServicioFumigacion(
     val id: Int,
@@ -48,17 +57,26 @@ data class ServicioFumigacion(
 @Composable
 fun PagPrincipal_Cli(
     modifier: Modifier = Modifier,
+    usuarioData: UsuarioState,
     onPerfilClick: () -> Unit
 ) {
-    val ubicacionCliente = "Rancagua, Región de O'Higgins"
+    val ubicacionCliente = usuarioData.direccion.ifBlank { "Rancagua, Región de O'Higgins" }
+
+    var mostrarMapa by remember { mutableStateOf(false) }
 
     val serviciosSimulados = listOf(
         ServicioFumigacion(1, "Ayrton Senna", "Talca, Región del Maule", 160, "$45.000 / ha"),
         ServicioFumigacion(2, "Lewis Hamilton", "Rancagua, Región de O'Higgins", 5, "$50.000 / ha"),
         ServicioFumigacion(3, "Max Verstappen", "Curicó, Región del Maule", 110, "$48.000 / ha"),
         ServicioFumigacion(4, "Fernando Alonso", "Chillán, Región del Ñuble", 310, "$42.000 / ha"),
-        ServicioFumigacion(5, "Charles Leclerc", "Melipilla, Región Metropolitana", 85, "$52.000 / ha")
-    ).sortedBy { it.distanciaKm } // Ordenados de menor a mayor distancia
+        ServicioFumigacion(
+            5,
+            "Charles Leclerc",
+            "Melipilla, Región Metropolitana",
+            85,
+            "$52.000 / ha"
+        )
+    ).sortedBy { it.distanciaKm }
 
     Column(
         modifier = modifier
@@ -112,25 +130,52 @@ fun PagPrincipal_Cli(
                 .background(Color(0xFFE8F5E9))
                 .padding(12.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Place,
-                    contentDescription = null,
-                    tint = Color(0xFF2E7D32),
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Column {
-                    Text(
-                        text = "Tu ubicación:",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color(0xFF2E7D32)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = null,
+                        tint = Color(0xFF2E7D32),
+                        modifier = Modifier.size(20.dp)
                     )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Column {
+                        Text(
+                            text = "Tu ubicación:",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color(0xFF2E7D32)
+                        )
+                        Text(
+                            text = ubicacionCliente,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1B5E20)
+                        )
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = { mostrarMapa = true },
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Map,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = Color(0xFF2E7D32)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = ubicacionCliente,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1B5E20)
+                        text = "Ver mapa",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFF2E7D32)
                     )
                 }
             }
@@ -139,7 +184,7 @@ fun PagPrincipal_Cli(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Cerca de ti",
+            text = "Ofertas cerca de ti",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -152,16 +197,68 @@ fun PagPrincipal_Cli(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(serviciosSimulados) { servicio ->
-                TarjetaServicio(servicio = servicio)
+                TarjetaServicio(
+                    servicio = servicio,
+                    onVerMapaClick = { mostrarMapa = true },
+                    onSolicitarClick = { /* Acción para solicitar servicio */ }
+                )
+            }
+        }
+    }
+
+    if (mostrarMapa) {
+        Dialog(onDismissRequest = { mostrarMapa = false }) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(450.dp),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Ubicación en Mapa",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2E7D32)
+                        )
+                        Button(
+                            onClick = { mostrarMapa = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                        ) {
+                            Text("Cerrar")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        GoogleMaps()
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun TarjetaServicio(servicio: ServicioFumigacion) {
+fun TarjetaServicio(
+    servicio: ServicioFumigacion,
+    onVerMapaClick: () -> Unit,
+    onSolicitarClick: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFF5F5F5)
         ),
@@ -192,23 +289,45 @@ fun TarjetaServicio(servicio: ServicioFumigacion) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Place,
-                    contentDescription = null,
-                    tint = Color.Gray,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = servicio.ubicacion,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = servicio.ubicacion,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = onVerMapaClick,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Map,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = Color(0xFF2E7D32)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Mapa",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFF2E7D32)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -218,15 +337,22 @@ fun TarjetaServicio(servicio: ServicioFumigacion) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = servicio.precioPorHectarea,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF2E7D32)
-                )
+                Column {
+                    Text(
+                        text = "Precio",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = servicio.precioPorHectarea,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFF2E7D32)
+                    )
+                }
 
                 Button(
-                    onClick = { /* Acción futura */ },
+                    onClick = { /* Acción futura para solicitar servicio */ },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2E7D32)
                     )
@@ -237,3 +363,4 @@ fun TarjetaServicio(servicio: ServicioFumigacion) {
         }
     }
 }
+

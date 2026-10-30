@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 var pantalla by remember { mutableStateOf("inicio") }
-                var tipoCuenta by remember { mutableStateOf("Cliente") }
+                var usuarioLogueado by remember { mutableStateOf(UsuarioState()) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     when (pantalla) {
@@ -32,41 +32,56 @@ class MainActivity : ComponentActivity() {
                         )
                         "singup" -> SingUp(
                             modifier = Modifier.padding(innerPadding),
-                            onCrearCuenta = { tipoCuenta ->
-                                if (tipoCuenta == "Cliente") {
-                                    pantalla = "pagprincipal_cli"
+                            onCrearCuenta = { datosUsuario ->
+                                usuarioLogueado = datosUsuario
+                                pantalla = if (datosUsuario.tipoCuenta == "Cliente") {
+                                    "pagprincipal_cli"
                                 } else {
-                                    pantalla = "pagprincipal_pres"
+                                    "pagprincipal_pres"
                                 }
                             }
                         )
                         "login" -> LogIn(
                             modifier = Modifier.padding(innerPadding),
-                        ) { tipoCuenta ->
-                            if (tipoCuenta == "Cliente") {
-                                pantalla = "pagprincipal_cli"
-                            } else {
-                                pantalla = "pagprincipal_pres"
+                            onContinuar = { datosUsuario ->
+                                usuarioLogueado = datosUsuario
+                                pantalla = if (datosUsuario.tipoCuenta == "Cliente") {
+                                    "pagprincipal_cli"
+                                } else {
+                                    "pagprincipal_pres"
+                                }
                             }
-                        }
-
+                        )
                         "pagprincipal_cli" -> PagPrincipal_Cli(
                             modifier = Modifier.padding(innerPadding),
+                            usuarioData = usuarioLogueado,
                             onPerfilClick = { pantalla = "perfil" }
                         )
                         "pagprincipal_pres" -> PagPrincipal_Pres(
                             modifier = Modifier.padding(innerPadding),
+                            usuarioData = usuarioLogueado,
                             onPerfilClick = { pantalla = "perfil" }
                         )
                         "perfil" -> Perfil(
                             modifier = Modifier.padding(innerPadding),
-                            tipoCuenta = tipoCuenta,
+                            usuarioData = usuarioLogueado,
+                            onEditarClick = { pantalla = "editar_perfil" },
                             onVolver = {
-                                pantalla = if (tipoCuenta == "Cliente") "pagprincipal_cli" else "pagprincipal_pres"
+                                pantalla = if (usuarioLogueado.tipoCuenta == "Cliente") "pagprincipal_cli" else "pagprincipal_pres"
                             },
                             onCerrarSesion = {
+                                usuarioLogueado = UsuarioState()
                                 pantalla = "inicio"
                             }
+                        )
+                        "editar_perfil" -> EditarPerfil(
+                            modifier = Modifier.padding(innerPadding),
+                            usuarioActual = usuarioLogueado,
+                            onGuardarCambios = { usuarioEditado ->
+                                usuarioLogueado = usuarioEditado
+                                pantalla = "perfil"
+                            },
+                            onCancelar = { pantalla = "perfil" }
                         )
                     }
                 }

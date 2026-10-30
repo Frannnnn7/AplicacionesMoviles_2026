@@ -16,7 +16,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -27,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,7 +38,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Perfil(
     modifier: Modifier = Modifier,
-    tipoCuenta: String = "Cliente",
+    usuarioData: UsuarioState,
+    onEditarClick: () -> Unit,
     onVolver: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
@@ -90,15 +89,16 @@ fun Perfil(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        // Si el nombre está vacío (ej. Login), muestra el nombre de usuario
         Text(
-            text = if (tipoCuenta == "Cliente") "Francisca Benítez" else "Piloto Servicio Agro",
+            text = usuarioData.nombre.ifBlank { usuarioData.usuario.ifBlank { "Usuario" } },
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = Color.Black
         )
 
         Text(
-            text = tipoCuenta,
+            text = usuarioData.tipoCuenta,
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Gray
         )
@@ -116,19 +116,37 @@ fun Perfil(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                ItemCampoPerfil(label = "Nombre completo", valor = if (tipoCuenta == "Cliente") "Francisca Benítez" else "Francisca Benítez TM")
-                ItemCampoPerfil(label = "Nombre de usuario", valor = "fbenitez")
-                ItemCampoPerfil(label = "Fecha de nacimiento", valor = "14/05/1998")
-                ItemCampoPerfil(label = "Dirección", valor = "Rancagua, Región de O'Higgins")
-                ItemCampoPerfil(label = "Teléfono", valor = "+56 9 1234 5678")
-                ItemCampoPerfil(label = "Tipo de cuenta", valor = tipoCuenta)
+                ItemCampoPerfil(
+                    label = "Nombre completo",
+                    valor = usuarioData.nombre.ifBlank { "Sin información" }
+                )
+                ItemCampoPerfil(
+                    label = "Nombre de usuario",
+                    valor = usuarioData.usuario.ifBlank { "Sin información" }
+                )
+                ItemCampoPerfil(
+                    label = "Fecha de nacimiento",
+                    valor = usuarioData.nacimiento.ifBlank { "Sin información" }
+                )
+                ItemCampoPerfil(
+                    label = "Dirección",
+                    valor = usuarioData.direccion.ifBlank { "Sin información" }
+                )
+                ItemCampoPerfil(
+                    label = "Número de teléfono",
+                    valor = usuarioData.telefono.ifBlank { "Sin información" }
+                )
+                ItemCampoPerfil(
+                    label = "Tipo de cuenta",
+                    valor = usuarioData.tipoCuenta
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(28.dp))
 
         Button(
-            onClick = { /* Acción para editar perfil */ },
+            onClick = onEditarClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -174,7 +192,7 @@ fun ItemCampoPerfil(label: String, valor: String) {
             text = valor,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.SemiBold,
-            color = Color.Black
+            color = if (valor == "Sin información") Color.LightGray else Color.Black
         )
     }
 }

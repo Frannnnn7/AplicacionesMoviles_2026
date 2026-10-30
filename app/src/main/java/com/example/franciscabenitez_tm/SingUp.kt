@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,8 +19,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun SingUp(
     modifier: Modifier = Modifier,
-    onCrearCuenta: (String) -> Unit
+    onCrearCuenta: (UsuarioState) -> Unit
 ) {
     var tipoCuenta by remember { mutableStateOf("Cliente") }
     var menuExpandido by remember { mutableStateOf(false) }
@@ -57,6 +56,15 @@ fun SingUp(
     var confirmarContrasena by remember { mutableStateOf("") }
 
     val opcionesTipoCuenta = listOf("Cliente", "Prestador de servicio")
+
+    val esFormularioValido = nombre.isNotBlank() &&
+            usuario.isNotBlank() &&
+            nacimiento.isNotBlank() &&
+            direccion.isNotBlank() &&
+            telefono.isNotBlank() &&
+            contrasena.isNotBlank() &&
+            confirmarContrasena.isNotBlank() &&
+            contrasena == confirmarContrasena
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -102,7 +110,7 @@ fun SingUp(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpandido) },
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                         .fillMaxWidth()
                 )
 
@@ -192,7 +200,17 @@ fun SingUp(
             )
 
             Button(
-                onClick = { onCrearCuenta(tipoCuenta) },
+                onClick = { onCrearCuenta(
+                    UsuarioState(
+                        nombre = nombre,
+                        usuario = usuario,
+                        nacimiento = nacimiento,
+                        direccion = direccion,
+                        telefono = telefono,
+                        tipoCuenta = tipoCuenta
+                    )
+                ) },
+                enabled = esFormularioValido,
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(54.dp),
