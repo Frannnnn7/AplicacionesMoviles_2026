@@ -7,5 +7,6 @@ data class UsuarioState(
     val direccion: String = "",
     val telefono: String = "",
     val tipoCuenta: String = "Cliente",
-    val contrasena: String = ""
+    val contrasena: String = "",
+    val fotoUri: String? = null
 )

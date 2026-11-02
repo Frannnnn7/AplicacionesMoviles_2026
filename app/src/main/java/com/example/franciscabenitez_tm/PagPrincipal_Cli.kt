@@ -2,6 +2,7 @@ package com.example.franciscabenitez_tm
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,17 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
@@ -36,15 +26,27 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.franciscabenitez_tm.GoogleMaps
+import coil.compose.AsyncImage
+
 
 data class ServicioFumigacion(
     val id: Int,
@@ -61,7 +63,6 @@ fun PagPrincipal_Cli(
     onPerfilClick: () -> Unit
 ) {
     val ubicacionCliente = usuarioData.direccion.ifBlank { "Rancagua, Región de O'Higgins" }
-
     var mostrarMapa by remember { mutableStateOf(false) }
 
     val serviciosSimulados = listOf(
@@ -69,13 +70,7 @@ fun PagPrincipal_Cli(
         ServicioFumigacion(2, "Lewis Hamilton", "Rancagua, Región de O'Higgins", 5, "$50.000 / ha"),
         ServicioFumigacion(3, "Max Verstappen", "Curicó, Región del Maule", 110, "$48.000 / ha"),
         ServicioFumigacion(4, "Fernando Alonso", "Chillán, Región del Ñuble", 310, "$42.000 / ha"),
-        ServicioFumigacion(
-            5,
-            "Charles Leclerc",
-            "Melipilla, Región Metropolitana",
-            85,
-            "$52.000 / ha"
-        )
+        ServicioFumigacion(5, "Charles Leclerc", "Melipilla, Región Metropolitana", 85, "$52.000 / ha")
     ).sortedBy { it.distanciaKm }
 
     Column(
@@ -107,19 +102,29 @@ fun PagPrincipal_Cli(
                 )
             }
 
-            IconButton(
-                onClick = onPerfilClick,
+            Box(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
                     .background(Color(0xFFE0E0E0))
+                    .clickable { onPerfilClick() },
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Foto de perfil",
-                    tint = Color(0xFF757575),
-                    modifier = Modifier.size(28.dp)
-                )
+                if (!usuarioData.fotoUri.isNullOrBlank()) {
+                    AsyncImage(
+                        model = usuarioData.fotoUri,
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Foto de perfil por defecto",
+                        tint = Color(0xFF757575),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         }
 
@@ -200,7 +205,7 @@ fun PagPrincipal_Cli(
                 TarjetaServicio(
                     servicio = servicio,
                     onVerMapaClick = { mostrarMapa = true },
-                    onSolicitarClick = { /* Acción para solicitar servicio */ }
+                    onSolicitarClick = {  }
                 )
             }
         }
@@ -352,7 +357,7 @@ fun TarjetaServicio(
                 }
 
                 Button(
-                    onClick = { /* Acción futura para solicitar servicio */ },
+                    onClick = onSolicitarClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2E7D32)
                     )
@@ -363,4 +368,3 @@ fun TarjetaServicio(
         }
     }
 }
-
