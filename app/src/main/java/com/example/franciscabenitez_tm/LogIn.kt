@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +44,8 @@ fun LogIn(
     var tipoCuenta by remember { mutableStateOf("Cliente") } // "Cliente" o "Prestador"
     var usuario by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
+
+    var mostrarExitoDialog by remember { mutableStateOf(false) }
 
     val esFormularioValido = usuario.isNotBlank() && contrasena.isNotBlank()
 
@@ -120,12 +124,7 @@ fun LogIn(
             )
 
             Button(
-                onClick = { onContinuar(
-                    UsuarioState(
-                        usuario = usuario,
-                        tipoCuenta = tipoCuenta
-                    )
-                ) },
+                onClick = { mostrarExitoDialog = true },
                 enabled = esFormularioValido,
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
@@ -141,6 +140,34 @@ fun LogIn(
                     style = MaterialTheme.typography.titleLarge
                 )
             }
+        }
+
+        if (mostrarExitoDialog) {
+            AlertDialog(
+                onDismissRequest = { },
+                title = {
+                    Text(
+                        text = "Sesión iniciada con éxito!",
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2E7D32)
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            mostrarExitoDialog = false
+                            onContinuar(
+                                UsuarioState(
+                                    usuario = usuario,
+                                    tipoCuenta = tipoCuenta
+                                )
+                            )
+                        }
+                    ) {
+                        Text("Continuar", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                    }
+                }
+            )
         }
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -23,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +56,9 @@ fun SingUp(
     var telefono by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
+
+    // Estado para controlar la visibilidad del diálogo de éxito
+    var mostrarExitoDialog by remember { mutableStateOf(false) }
 
     val opcionesTipoCuenta = listOf("Cliente", "Prestador de servicio")
 
@@ -200,16 +205,7 @@ fun SingUp(
             )
 
             Button(
-                onClick = { onCrearCuenta(
-                    UsuarioState(
-                        nombre = nombre,
-                        usuario = usuario,
-                        nacimiento = nacimiento,
-                        direccion = direccion,
-                        telefono = telefono,
-                        tipoCuenta = tipoCuenta
-                    )
-                ) },
+                onClick = { mostrarExitoDialog = true },
                 enabled = esFormularioValido,
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
@@ -227,6 +223,38 @@ fun SingUp(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        if (mostrarExitoDialog) {
+            AlertDialog(
+                onDismissRequest = { },
+                title = {
+                    Text(
+                        text = "Registro exitoso!",
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2E7D32)
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            mostrarExitoDialog = false
+                            onCrearCuenta(
+                                UsuarioState(
+                                    nombre = nombre,
+                                    usuario = usuario,
+                                    nacimiento = nacimiento,
+                                    direccion = direccion,
+                                    telefono = telefono,
+                                    tipoCuenta = tipoCuenta
+                                )
+                            )
+                        }
+                    ) {
+                        Text("Continuar", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                    }
+                }
+            )
         }
     }
 }
