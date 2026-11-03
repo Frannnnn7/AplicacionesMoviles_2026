@@ -36,7 +36,7 @@ fun GoogleMaps() {
     val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    var miUbicacion by remember { mutableStateOf(LatLng(-33.49936500787212, -70.61654033901539)) }
+    var miUbicacion by remember { mutableStateOf(LatLng(-33.5002005,-70.616614619)) }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(miUbicacion, 15f)
