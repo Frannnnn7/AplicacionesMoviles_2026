@@ -61,13 +61,13 @@ fun GoogleMaps() {
     }
 
     val nombreLugar1 = "Lugar 1"
-    val lugar1 = LatLng(-33.497672632070476, -70.6126025410391)
+    val lugar1 = LatLng(-33.3897787,-70.8526602)
 
     val nombreLugar2 = "Lugar 2"
-    val lugar2 = LatLng(-33.50104607891704, -70.61707122623334)
+    val lugar2 = LatLng(-33.5045719,-70.6884978)
 
     val nombreLugar3 = "Lugar 3"
-    val lugar3 = LatLng(-33.49774554586376, -70.6178305190539)
+    val lugar3 = LatLng(-33.5105835,-70.6757949)
 
     Column(
         modifier = Modifier
