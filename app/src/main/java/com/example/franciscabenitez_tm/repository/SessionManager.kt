@@ -1,8 +1,8 @@
-package com.example.franciscabenitez_tm.data.repository
+package com.example.franciscabenitez_tm.repository
 
 
 import android.content.Context
-import com.example.franciscabenitez_tm.UsuarioState
+import com.example.franciscabenitez_tm.model.UsuarioState
 
 
 class SesionManager(context: Context) {

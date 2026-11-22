@@ -13,6 +13,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.example.franciscabenitez_tm.data.repository.SesionManager
+import com.example.franciscabenitez_tm.model.UsuarioState
+import com.example.franciscabenitez_tm.viewmodel.EditarPerfil
+import com.example.franciscabenitez_tm.viewmodel.Inicio
+import com.example.franciscabenitez_tm.viewmodel.LogIn
+import com.example.franciscabenitez_tm.viewmodel.PagPrincipal_Cli
+import com.example.franciscabenitez_tm.viewmodel.PagPrincipal_Pres
+import com.example.franciscabenitez_tm.viewmodel.Perfil
+import com.example.franciscabenitez_tm.viewmodel.SingUp
 
 
 class MainActivity : ComponentActivity() {

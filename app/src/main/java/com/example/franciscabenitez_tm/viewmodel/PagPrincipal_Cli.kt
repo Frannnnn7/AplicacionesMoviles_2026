@@ -1,4 +1,4 @@
-package com.example.franciscabenitez_tm
+package com.example.franciscabenitez_tm.viewmodel
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,71 +46,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
-data class SolicitudCliente(
+import com.example.franciscabenitez_tm.ui.screen.GoogleMaps
+import com.example.franciscabenitez_tm.R
+import com.example.franciscabenitez_tm.model.UsuarioState
+
+
+data class ServicioFumigacion(
     val id: Int,
-    val cliente: String,
-    val predio: String,
+    val prestador: String,
     val ubicacion: String,
     val distanciaKm: Int,
-    val hectareas: Int,
-    val presupuestoTotal: String
+    val precioPorHectarea: String
 )
 
 @Composable
-fun PagPrincipal_Pres(
+fun PagPrincipal_Cli(
     modifier: Modifier = Modifier,
     usuarioData: UsuarioState,
     onPerfilClick: () -> Unit
 ) {
-    val ubicacionPrestador = usuarioData.direccion.ifBlank { "Curicó, Región del Maule" }
+    val ubicacionCliente = usuarioData.direccion.ifBlank { "Rancagua, Región de O'Higgins" }
     var mostrarMapa by remember { mutableStateOf(false) }
 
-    val solicitudesSimuladas = listOf(
-        SolicitudCliente(
-            id = 1,
-            cliente = "Carlos Sainz",
-            predio = "Agrícola Los Olivos",
-            ubicacion = "Curicó, Región del Maule",
-            distanciaKm = 8,
-            hectareas = 25,
-            presupuestoTotal = "$1.200.000"
-        ),
-        SolicitudCliente(
-            id = 2,
-            cliente = "Kimi Räikkönen",
-            predio = "Fundo Santa Elena",
-            ubicacion = "Molina, Región del Maule",
-            distanciaKm = 18,
-            hectareas = 40,
-            presupuestoTotal = "$1.920.000"
-        ),
-        SolicitudCliente(
-            id = 3,
-            cliente = "Sebastian Vettel",
-            predio = "Frutícola San Pedro",
-            ubicacion = "Teno, Región del Maule",
-            distanciaKm = 22,
-            hectareas = 15,
-            presupuestoTotal = "$750.000"
-        ),
-        SolicitudCliente(
-            id = 4,
-            cliente = "Daniel Ricciardo",
-            predio = "Agrícola El Manzano",
-            ubicacion = "Talca, Región del Maule",
-            distanciaKm = 65,
-            hectareas = 60,
-            presupuestoTotal = "$2.700.000"
-        ),
-        SolicitudCliente(
-            id = 5,
-            cliente = "Valtteri Bottas",
-            predio = "Viña Valle Verde",
-            ubicacion = "Rancagua, Región de O'Higgins",
-            distanciaKm = 105,
-            hectareas = 30,
-            presupuestoTotal = "$1.500.000"
-        )
+    val serviciosSimulados = listOf(
+        ServicioFumigacion(1, "Ayrton Senna", "Talca, Región del Maule", 160, "$45.000 / ha"),
+        ServicioFumigacion(2, "Lewis Hamilton", "Rancagua, Región de O'Higgins", 5, "$50.000 / ha"),
+        ServicioFumigacion(3, "Max Verstappen", "Curicó, Región del Maule", 110, "$48.000 / ha"),
+        ServicioFumigacion(4, "Fernando Alonso", "Chillán, Región del Ñuble", 310, "$42.000 / ha"),
+        ServicioFumigacion(5, "Charles Leclerc", "Melipilla, Región Metropolitana", 85, "$52.000 / ha")
     ).sortedBy { it.distanciaKm }
 
     Column(
@@ -160,7 +123,7 @@ fun PagPrincipal_Pres(
                 } else {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = "Foto de perfil",
+                        contentDescription = "Foto de perfil por defecto",
                         tint = Color(0xFF757575),
                         modifier = Modifier.size(28.dp)
                     )
@@ -193,12 +156,12 @@ fun PagPrincipal_Pres(
                     Spacer(modifier = Modifier.width(6.dp))
                     Column {
                         Text(
-                            text = "Base de operaciones:",
+                            text = "Tu ubicación:",
                             style = MaterialTheme.typography.labelMedium,
                             color = Color(0xFF2E7D32)
                         )
                         Text(
-                            text = ubicacionPrestador,
+                            text = ubicacionCliente,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF1B5E20)
@@ -229,7 +192,7 @@ fun PagPrincipal_Pres(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Solicitudes cerca de ti",
+            text = "Ofertas cerca de ti",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -241,10 +204,11 @@ fun PagPrincipal_Pres(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(solicitudesSimuladas) { solicitud ->
-                TarjetaSolicitud(
-                    solicitud = solicitud,
-                    onVerMapaClick = { mostrarMapa = true }
+            items(serviciosSimulados) { servicio ->
+                TarjetaServicio(
+                    servicio = servicio,
+                    onVerMapaClick = { mostrarMapa = true },
+                    onSolicitarClick = {  }
                 )
             }
         }
@@ -270,7 +234,7 @@ fun PagPrincipal_Pres(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Mapa de Solicitudes",
+                            text = "Ubicación en Mapa",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2E7D32)
@@ -295,9 +259,10 @@ fun PagPrincipal_Pres(
 }
 
 @Composable
-fun TarjetaSolicitud(
-    solicitud: SolicitudCliente,
-    onVerMapaClick: () -> Unit
+fun TarjetaServicio(
+    servicio: ServicioFumigacion,
+    onVerMapaClick: () -> Unit,
+    onSolicitarClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -317,29 +282,22 @@ fun TarjetaSolicitud(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = solicitud.cliente,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1B5E20)
-                    )
-                    Text(
-                        text = solicitud.predio,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
-                }
+                Text(
+                    text = servicio.prestador,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1B5E20)
+                )
 
                 Text(
-                    text = "A ${solicitud.distanciaKm} km",
+                    text = "A ${servicio.distanciaKm} km",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2E7D32)
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -355,7 +313,7 @@ fun TarjetaSolicitud(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${solicitud.ubicacion} • ${solicitud.hectareas} ha",
+                        text = servicio.ubicacion,
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
@@ -389,12 +347,12 @@ fun TarjetaSolicitud(
             ) {
                 Column {
                     Text(
-                        text = "Presupuesto",
+                        text = "Precio",
                         style = MaterialTheme.typography.labelMedium,
                         color = Color.Gray
                     )
                     Text(
-                        text = solicitud.presupuestoTotal,
+                        text = servicio.precioPorHectarea,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color(0xFF2E7D32)
@@ -402,12 +360,12 @@ fun TarjetaSolicitud(
                 }
 
                 Button(
-                    onClick = {  },
+                    onClick = onSolicitarClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2E7D32)
                     )
                 ) {
-                    Text("Aceptar")
+                    Text("Solicitar")
                 }
             }
         }

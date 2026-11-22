@@ -1,4 +1,4 @@
-package com.example.franciscabenitez_tm
+package com.example.franciscabenitez_tm.model
 
 data class UsuarioState(
     val nombre: String = "",

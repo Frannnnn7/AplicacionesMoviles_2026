@@ -1,4 +1,4 @@
-package com.example.franciscabenitez_tm
+package com.example.franciscabenitez_tm.viewmodel
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
+import com.example.franciscabenitez_tm.R
+import com.example.franciscabenitez_tm.model.UsuarioState
+import com.example.franciscabenitez_tm.repository.AuthViewModel
 
 @Composable
 fun LogIn(
@@ -124,8 +127,12 @@ fun LogIn(
             )
 
             Button(
-                onClick = { mostrarExitoDialog = true },
-                enabled = esFormularioValido,
+                onClick = {
+                    AuthViewModel.Login(usuario, contrasena) {
+                        mostrarExitoDialog = true
+                    }
+                },
+                enabled = esFormularioValido && !AuthViewModel.cargando.value
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(54.dp),

@@ -1,4 +1,4 @@
-package com.example.franciscabenitez_tm
+package com.example.franciscabenitez_tm.viewmodel
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.franciscabenitez_tm.model.UsuarioState
 
 @Composable
 fun EditarPerfil(

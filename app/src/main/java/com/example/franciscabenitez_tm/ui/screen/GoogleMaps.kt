@@ -1,4 +1,4 @@
-package com.example.franciscabenitez_tm
+package com.example.franciscabenitez_tm.ui.screen
 
 import android.Manifest
 import android.annotation.SuppressLint
