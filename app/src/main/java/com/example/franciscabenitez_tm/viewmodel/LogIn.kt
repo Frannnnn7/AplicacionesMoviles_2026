@@ -1,3 +1,4 @@
+
 package com.example.franciscabenitez_tm.viewmodel
 
 import androidx.compose.foundation.Image
@@ -22,8 +23,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,10 +34,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.franciscabenitez_tm.R
 import com.example.franciscabenitez_tm.model.UsuarioState
 import com.example.franciscabenitez_tm.repository.AuthViewModel
@@ -42,15 +44,17 @@ import com.example.franciscabenitez_tm.repository.AuthViewModel
 @Composable
 fun LogIn(
     modifier: Modifier = Modifier,
-    onContinuar: (UsuarioState) -> Unit,
+    onContinuar: (UsuarioState) -> Unit
 ) {
-    var tipoCuenta by remember { mutableStateOf("Cliente") } // "Cliente" o "Prestador"
+    val authViewModel: AuthViewModel = viewModel()
+
+    var tipoCuenta by remember { mutableStateOf("Cliente") }
     var usuario by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
-
     var mostrarExitoDialog by remember { mutableStateOf(false) }
 
-    val esFormularioValido = usuario.isNotBlank() && contrasena.isNotBlank()
+    val esFormularioValido =
+        usuario.isNotBlank() && contrasena.isNotBlank()
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -73,7 +77,6 @@ fun LogIn(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             Text(
                 text = "Iniciar Sesión",
                 style = MaterialTheme.typography.headlineMedium,
@@ -101,8 +104,8 @@ fun LogIn(
                 )
 
                 FilterChip(
-                    selected = tipoCuenta == "Prestador",
-                    onClick = { tipoCuenta = "Prestador" },
+                    selected = tipoCuenta == "Prestador de servicio",
+                    onClick = { tipoCuenta = "Prestador de servicio" },
                     label = { Text("Prestador de servicio") },
                     modifier = Modifier.weight(1f)
                 )
@@ -121,18 +124,31 @@ fun LogIn(
                 onValueChange = { contrasena = it },
                 label = { Text("Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                ),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
+            authViewModel.error.value?.let { mensaje ->
+                Text(
+                    text = mensaje,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
             Button(
                 onClick = {
-                    AuthViewModel.Login(usuario, contrasena) {
+                    authViewModel.login(
+                        usuario.trim(),
+                        contrasena
+                    ) {
                         mostrarExitoDialog = true
                     }
                 },
-                enabled = esFormularioValido && !AuthViewModel.cargando.value
+                enabled = esFormularioValido &&
+                        !authViewModel.cargando.value,
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(54.dp),
@@ -141,7 +157,11 @@ fun LogIn(
                 )
             ) {
                 Text(
-                    text = "Continuar",
+                    text = if (authViewModel.cargando.value) {
+                        "Ingresando..."
+                    } else {
+                        "Continuar"
+                    },
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge
@@ -151,10 +171,10 @@ fun LogIn(
 
         if (mostrarExitoDialog) {
             AlertDialog(
-                onDismissRequest = { },
+                onDismissRequest = {},
                 title = {
                     Text(
-                        text = "Sesión iniciada con éxito!",
+                        text = "¡Sesión iniciada con éxito!",
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF2E7D32)
                     )
@@ -165,13 +185,17 @@ fun LogIn(
                             mostrarExitoDialog = false
                             onContinuar(
                                 UsuarioState(
-                                    usuario = usuario,
+                                    usuario = usuario.trim(),
                                     tipoCuenta = tipoCuenta
                                 )
                             )
                         }
                     ) {
-                        Text("Continuar", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "Continuar",
+                            color = Color(0xFF2E7D32),
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             )

@@ -1,3 +1,4 @@
+
 package com.example.franciscabenitez_tm
 
 import android.os.Bundle
@@ -7,13 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.franciscabenitez_tm.data.repository.SesionManager
+import androidx.compose.ui.Modifier
 import com.example.franciscabenitez_tm.model.UsuarioState
+import com.example.franciscabenitez_tm.repository.SesionManager
 import com.example.franciscabenitez_tm.viewmodel.EditarPerfil
 import com.example.franciscabenitez_tm.viewmodel.Inicio
 import com.example.franciscabenitez_tm.viewmodel.LogIn
@@ -22,20 +23,15 @@ import com.example.franciscabenitez_tm.viewmodel.PagPrincipal_Pres
 import com.example.franciscabenitez_tm.viewmodel.Perfil
 import com.example.franciscabenitez_tm.viewmodel.SingUp
 
-
 class MainActivity : ComponentActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         val sesionManager = SesionManager(this)
-
 
         setContent {
             MaterialTheme {
-
 
                 var usuarioLogueado by remember {
                     mutableStateOf(
@@ -46,7 +42,6 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
-
 
                 var pantalla by remember {
                     mutableStateOf(
@@ -62,10 +57,11 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     when (pantalla) {
-
 
                         "inicio" -> Inicio(
                             modifier = Modifier.padding(innerPadding),
@@ -73,13 +69,11 @@ class MainActivity : ComponentActivity() {
                             singup = { pantalla = "singup" }
                         )
 
-
                         "singup" -> SingUp(
                             modifier = Modifier.padding(innerPadding),
                             onCrearCuenta = { datosUsuario ->
                                 usuarioLogueado = datosUsuario
                                 sesionManager.guardarSesion(datosUsuario)
-
 
                                 pantalla = if (datosUsuario.tipoCuenta == "Cliente") {
                                     "pagprincipal_cli"
@@ -88,7 +82,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         )
-
 
                         "login" -> LogIn(
                             modifier = Modifier.padding(innerPadding),
@@ -96,7 +89,6 @@ class MainActivity : ComponentActivity() {
                                 usuarioLogueado = datosUsuario
                                 sesionManager.guardarSesion(datosUsuario)
 
-
                                 pantalla = if (datosUsuario.tipoCuenta == "Cliente") {
                                     "pagprincipal_cli"
                                 } else {
@@ -105,20 +97,17 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-
                         "pagprincipal_cli" -> PagPrincipal_Cli(
                             modifier = Modifier.padding(innerPadding),
                             usuarioData = usuarioLogueado,
                             onPerfilClick = { pantalla = "perfil" }
                         )
 
-
                         "pagprincipal_pres" -> PagPrincipal_Pres(
                             modifier = Modifier.padding(innerPadding),
                             usuarioData = usuarioLogueado,
                             onPerfilClick = { pantalla = "perfil" }
                         )
-
 
                         "perfil" -> Perfil(
                             modifier = Modifier.padding(innerPadding),
@@ -137,7 +126,6 @@ class MainActivity : ComponentActivity() {
                                 pantalla = "inicio"
                             }
                         )
-
 
                         "editar_perfil" -> EditarPerfil(
                             modifier = Modifier.padding(innerPadding),

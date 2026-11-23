@@ -1,36 +1,80 @@
+
 package com.example.franciscabenitez_tm.repository
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.franciscabenitez_tm.repository.XanoRepository
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
+
     private val repository = XanoRepository()
-    var cargando = androidx.compose.runtime.mutableStateOf(false)
-        private set
-    var error = androidx.compose.runtime.mutableStateOf<String?>(null)
-        private set
-    var token = androidx.compose.runtime.mutableStateOf<String?>(null)
+
+    var cargando = mutableStateOf(false)
         private set
 
-    fun login(email: String, password: String, onSuccess: () -> Unit) {
-        ejecutar(onSuccess) { repository.Login(email, password).authToken }
+    var error = mutableStateOf<String?>(null)
+        private set
+
+    var token = mutableStateOf<String?>(null)
+        private set
+
+    fun login(
+        usuario: String,
+        password: String,
+        onSuccess: () -> Unit
+    ) {
+        ejecutar(onSuccess) {
+            repository.login(usuario, password).authToken
+        }
     }
 
-    fun signup(name: String, email: String, password: String, onSuccess: () -> Unit) {
-        ejecutar(onSuccess) { repository.Signup(name, email, password).authToken }
+    fun signup(
+        tipoCuenta: String,
+        nombre: String,
+        usuario: String,
+        fechaNacimiento: String,
+        direccion: String,
+        telefono: String,
+        password: String,
+        onSuccess: () -> Unit
+    ) {
+        ejecutar(onSuccess) {
+            repository.signup(
+                tipoCuenta,
+                nombre,
+                usuario,
+                fechaNacimiento,
+                direccion,
+                telefono,
+                password
+            ).authToken
+        }
     }
 
-    private fun ejecutar(onSuccess: () -> Unit, solicitud: suspend () -> String?) {
+    private fun ejecutar(
+        onSuccess: () -> Unit,
+        solicitud: suspend () -> String?
+    ) {
         viewModelScope.launch {
             cargando.value = true
             error.value = null
+
             try {
-                token.value = solicitud() ?: kotlin.error("Xano no devolvió un token")
+                val tokenRecibido = solicitud()
+
+                if (tokenRecibido.isNullOrBlank()) {
+                    throw IllegalStateException(
+                        "Xano no devolvió un token"
+                    )
+                }
+
+                token.value = tokenRecibido
                 onSuccess()
+
             } catch (e: Exception) {
-                error.value = e.message ?: "No se pudo conectar con Xano"
+                error.value = e.message
+                    ?: "No se pudo conectar con Xano"
             } finally {
                 cargando.value = false
             }

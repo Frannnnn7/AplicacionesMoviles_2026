@@ -1,6 +1,7 @@
+
 package com.example.franciscabenitez_tm.viewmodel
 
-import         androidx.compose.foundation.Image
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,8 +27,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,10 +38,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.franciscabenitez_tm.R
 import com.example.franciscabenitez_tm.model.UsuarioState
 import com.example.franciscabenitez_tm.repository.AuthViewModel
@@ -49,6 +51,8 @@ fun SingUp(
     modifier: Modifier = Modifier,
     onCrearCuenta: (UsuarioState) -> Unit
 ) {
+    val authViewModel: AuthViewModel = viewModel()
+
     var tipoCuenta by remember { mutableStateOf("Cliente") }
     var menuExpandido by remember { mutableStateOf(false) }
 
@@ -60,19 +64,50 @@ fun SingUp(
     var contrasena by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
 
-    // Estado para controlar la visibilidad del diálogo de éxito
     var mostrarExitoDialog by remember { mutableStateOf(false) }
 
-    val opcionesTipoCuenta = listOf("Cliente", "Prestador de servicio")
+    val opcionesTipoCuenta = listOf(
+        "Cliente",
+        "Prestador de servicio"
+    )
 
-    val esFormularioValido = nombre.isNotBlank() &&
-            usuario.isNotBlank() &&
-            nacimiento.isNotBlank() &&
-            direccion.isNotBlank() &&
-            telefono.isNotBlank() &&
-            contrasena.isNotBlank() &&
-            confirmarContrasena.isNotBlank() &&
-            contrasena == confirmarContrasena
+    val partesFecha = nacimiento.trim().split("/")
+
+
+    val fechaValida = if (
+        partesFecha.size == 3 &&
+        partesFecha[2].length == 4
+    ) {
+        val dia = partesFecha[0].toIntOrNull()
+        val mes = partesFecha[1].toIntOrNull()
+        val anio = partesFecha[2].toIntOrNull()
+
+        if (dia != null && mes != null && anio != null) {
+            try {
+                val calendario = java.util.GregorianCalendar()
+                calendario.isLenient = false
+                calendario.set(anio, mes - 1, dia)
+                calendario.time
+                true
+            } catch (e: IllegalArgumentException) {
+                false
+            }
+        } else {
+            false
+        }
+    } else {
+        false
+    }
+
+    val esFormularioValido =
+        nombre.isNotBlank() &&
+                usuario.isNotBlank() &&
+                fechaValida &&
+                direccion.isNotBlank() &&
+                telefono.isNotBlank() &&
+                contrasena.isNotBlank() &&
+                confirmarContrasena.isNotBlank() &&
+                contrasena == confirmarContrasena
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -107,7 +142,9 @@ fun SingUp(
 
             ExposedDropdownMenuBox(
                 expanded = menuExpandido,
-                onExpandedChange = { menuExpandido = !menuExpandido },
+                onExpandedChange = {
+                    menuExpandido = !menuExpandido
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedTextField(
@@ -115,7 +152,11 @@ fun SingUp(
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Tipo de cuenta") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpandido) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = menuExpandido
+                        )
+                    },
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                     modifier = Modifier
                         .menuAnchor(MenuAnchorType.PrimaryNotEditable)
@@ -124,7 +165,9 @@ fun SingUp(
 
                 ExposedDropdownMenu(
                     expanded = menuExpandido,
-                    onDismissRequest = { menuExpandido = false }
+                    onDismissRequest = {
+                        menuExpandido = false
+                    }
                 ) {
                     opcionesTipoCuenta.forEach { opcion ->
                         DropdownMenuItem(
@@ -157,7 +200,10 @@ fun SingUp(
             OutlinedTextField(
                 value = nacimiento,
                 onValueChange = { nacimiento = it },
-                label = { Text("Fecha de nacimiento (DD/MM/AAAA)") },
+                label = {
+                    Text("Fecha de nacimiento (DD/MM/AAAA)")
+                },
+                isError = nacimiento.isNotBlank() && !fechaValida,
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -174,7 +220,9 @@ fun SingUp(
                 value = telefono,
                 onValueChange = { telefono = it },
                 label = { Text("Número de teléfono") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone
+                ),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -184,12 +232,16 @@ fun SingUp(
                 onValueChange = { contrasena = it },
                 label = { Text("Contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                ),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
-            val hayErrorContrasena = confirmarContrasena.isNotEmpty() && contrasena != confirmarContrasena
+            val hayErrorContrasena =
+                confirmarContrasena.isNotEmpty() &&
+                        contrasena != confirmarContrasena
 
             OutlinedTextField(
                 value = confirmarContrasena,
@@ -198,22 +250,46 @@ fun SingUp(
                 isError = hayErrorContrasena,
                 supportingText = {
                     if (hayErrorContrasena) {
-                        Text("Las contraseñas no coinciden", color = MaterialTheme.colorScheme.error)
+                        Text(
+                            text = "Las contraseñas no coinciden",
+                            color = MaterialTheme.colorScheme.error
+                        )
                     }
                 },
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                ),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
+            authViewModel.error.value?.let { mensaje ->
+                Text(
+                    text = mensaje,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
             Button(
                 onClick = {
-                    AuthViewModel.signup(nombre, usuario, contrasena) {
+                    val fechaApi =
+                        "${partesFecha[2]}-${partesFecha[1].padStart(2, '0')}-${partesFecha[0].padStart(2, '0')}"
+
+                    authViewModel.signup(
+                        tipoCuenta,
+                        nombre.trim(),
+                        usuario.trim(),
+                        fechaApi,
+                        direccion.trim(),
+                        telefono.trim(),
+                        contrasena
+                    ) {
                         mostrarExitoDialog = true
                     }
                 },
-                enabled = esFormularioValido && !AuthViewModel.cargando.value,
+                enabled = esFormularioValido &&
+                        !authViewModel.cargando.value,
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(54.dp),
@@ -222,7 +298,11 @@ fun SingUp(
                 )
             ) {
                 Text(
-                    text = "Crear cuenta",
+                    text = if (authViewModel.cargando.value) {
+                        "Registrando..."
+                    } else {
+                        "Crear cuenta"
+                    },
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge
@@ -234,10 +314,10 @@ fun SingUp(
 
         if (mostrarExitoDialog) {
             AlertDialog(
-                onDismissRequest = { },
+                onDismissRequest = {},
                 title = {
                     Text(
-                        text = "Registro exitoso!",
+                        text = "¡Registro exitoso!",
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF2E7D32)
                     )
@@ -258,7 +338,11 @@ fun SingUp(
                             )
                         }
                     ) {
-                        Text("Continuar", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "Continuar",
+                            color = Color(0xFF2E7D32),
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             )
